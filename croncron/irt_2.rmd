@@ -1,0 +1,53 @@
+```{r}
+
+library('mirt')
+library('dplyr')
+library('knitr')
+
+```
+
+
+```{r}
+data <- read.csv("sampleData.csv", header=TRUE) 
+
+print(data)
+
+
+
+# scale <-(data[,1:6])
+
+mod1 <- (mirt(data, 1, verbose = FALSE, itemtype = 'graded', SE = TRUE))
+
+M2(mod1, type = "C2", calcNULL = FALSE)
+
+
+```
+
+```{r}
+itemfit(mod1)
+
+```
+
+
+
+
+```{r}
+summary(mod1)
+```
+
+```{r}
+plot(mod1, type='trace', which.item = c(1,2,3,4,5,6), facet_items=T, 
+     as.table = TRUE, auto.key=list(points=F, lines=T, columns=4, space = 'top', cex = .8), 
+              theta_lim = c(-3, 3), 
+     main = "")
+
+```
+
+```{r}
+plot(mod1, type='infotrace', which.item = c(1,2,3,4,5,6), facet_items=T, 
+     as.table = TRUE, auto.key=list(points=F, lines=T, columns=1, space = 'right', cex = .8), 
+              theta_lim = c(-3, 3), 
+     main="")
+
+
+```

@@ -8,9 +8,11 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r}
-install.packages('mirt')
+# install.packages('mirt')
+# install.packages('knitr')
+# install.packages('dplyr')
 library(mirt)
-library(knitr)      
+library(knitr)
 library(dplyr)
 
 
@@ -27,6 +29,12 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 data <- read.csv("sampleData.csv", header=TRUE) 
 
 print(data)
+
+
+
+# scale <-(data[,1:6])
+
+mod1 <- (mirt(data, 1, verbose = FALSE, itemtype = 'graded', SE = TRUE))
 
 
 ```
