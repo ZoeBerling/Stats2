@@ -8,19 +8,49 @@ library('knitr')
 
 
 ```{r}
+<<<<<<< HEAD
+data <- read.csv("sampleData.csv", header=TRUE) 
+
+print(data)
+
+# 
+# for (c in colnames(data)) {
+# #    print(attributes(data[[c]]))
+# #    print(table(data[[c]], exclude = NULL))
+#   data[[c]]<- as.factor(data[[c]])
+#   }
+# 
+# str(data)
+=======
 data <- read.csv("baseData.csv", header=TRUE) 
+>>>>>>> main
 
 # print(data)
 
+<<<<<<< HEAD
+
+# dt <- table(data$Q2A)
+# dt
+# chisq <- chisq.test(dt)
+# chisq
+
+=======
 data<- data[c('Q1A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'Q7A', 'Q8A', 'Q9A', 'Q14A', 'Q21A')]
 print(data)
+>>>>>>> main
 # scale <-(data[,1:6])
 
-mod1 <- (mirt(data, 1, verbose = FALSE, itemtype = 'graded', SE = TRUE))
+mod1 <- (mirt(data, 1, verbose = FALSE, itemtype = "graded", SE = TRUE))
+mod1
 
+
+<<<<<<< HEAD
+M2(mod1, type = "C2", calcNULL = FALSE, CI=.95)
+=======
 mod1
 
 M2(mod1, type = "C2", calcNULL = FALSE)
+>>>>>>> main
 
 
 ```
@@ -28,6 +58,7 @@ M2(mod1, type = "C2", calcNULL = FALSE)
 
 
 ```{r}
+# A second area of of interest is to assess how well each item fits the model.
 itemfit(mod1)
 
 ```
