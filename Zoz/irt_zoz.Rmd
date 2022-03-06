@@ -1,0 +1,118 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(eRm)
+library(reshape)
+library(dplyr)
+library(ggplot2)
+library(gtable)
+library(gridExtra)
+library(grid)
+library(ggpubr)
+library(mirt)
+library(tidyr)
+library(pander)
+```
+
+```{r}
+data <- read.csv("baseData.csv", header=TRUE) 
+
+data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
+print(data)
+
+mod1 <- mirt(data, model= 1, itemtype = 'gpcm')
+# mod1
+#looks at how well each item runs on that one dimensional latent (with F1)
+summary(mod1)
+
+coef(mod1, IRTpars= T)
+itemplot(mod1, 1, type="trace")
+itemplot(mod1, 1, type = "info")
+plot(mod1, type='trace')
+plot(mod1, type = "info")
+
+```
+
+```{r}
+plot(mod1)
+fscores(mod1)
+itemfit(mod1)
+personfit(mod1)
+
+
+
+```
+
+```{r}
+# going off of aidens
+data <- read.csv("baseData.csv", header=TRUE) 
+data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
+
+# dat <- expand.table(data) # zoe says we don't need this step because our data is already columns by question
+
+# mod <- mirt(dat, 1, verbose=FALSE) #  blog
+mod <- mirt(data,1,verbose = FALSE) # zoe
+
+# Extract all items 
+# Compute the probability trace lines
+# Put into a list
+traceline <- NULL
+for(i in 1:length(data)){ # Zoe changed dat to data
+extr.2 <- extract.item(mod, i)
+Theta <- matrix(seq(-4,4, by = .1))
+traceline[[i]] <- probtrace(extr.2, Theta)
+}
+
+# rename list
+names(traceline) <- paste('item',1:length(traceline))
+
+# rbind traceline
+traceline.df <- do.call(rbind, traceline)
+
+# create item names length based on length of theta provided
+item <- rep(names(traceline),each=length(Theta))
+
+# put them all together into a dataframe
+l.format <- cbind.data.frame(Theta, item, traceline.df)
+
+
+l.format$item<-as.factor(l.format$item)
+aux<-l.format %>%
+  group_by(item) %>%
+  slice(which.min(abs(P.1-0.5))) # We are only using the P.1 column (dichotomous)
+
+aux<-aux[order(aux$Theta),]
+ord<-as.integer(aux$item)
+l.format$item = factor(l.format$item,levels(l.format$item)[ord])
+
+# plot chart
+ggplot(l.format, aes(Theta, P.1, colour = item)) + 
+  geom_line() + 
+  ggtitle('Probability Tracelines') + 
+  xlab(expression(theta)) + 
+  ylab(expression(P(theta))) + 
+  geom_hline(aes(yintercept = 0.5)) + theme_bw() + 
+  theme(text = element_text(size=16),
+        axis.text.x=element_text(colour="black"),
+        axis.text.y=element_text(colour="black"),
+        legend.title=element_blank())
+
+
+
+
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
