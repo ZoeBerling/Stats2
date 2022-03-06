@@ -22,9 +22,9 @@ library(pander)
 ```
 
 ```{r}
-data <- read.csv("baseData.csv", header=TRUE) 
+data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 
-data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
+data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'gender')]
 print(data)
 
 mod1 <- mirt(data, model= 1, itemtype = 'gpcm')
@@ -33,6 +33,7 @@ mod1 <- mirt(data, model= 1, itemtype = 'gpcm')
 summary(mod1)
 
 coef(mod1, IRTpars= T)
+itemplot(mod1, 1, type="score")
 itemplot(mod1, 1, type="trace")
 itemplot(mod1, 1, type = "info")
 plot(mod1, type='trace')
@@ -51,65 +52,35 @@ personfit(mod1)
 ```
 
 ```{r}
-# going off of aidens
-data <- read.csv("baseData.csv", header=TRUE) 
-data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
-
-# dat <- expand.table(data) # zoe says we don't need this step because our data is already columns by question
-
-# mod <- mirt(dat, 1, verbose=FALSE) #  blog
-mod <- mirt(data,1,verbose = FALSE) # zoe
-
-# Extract all items 
-# Compute the probability trace lines
-# Put into a list
-traceline <- NULL
-for(i in 1:length(data)){ # Zoe changed dat to data
-extr.2 <- extract.item(mod, i)
-Theta <- matrix(seq(-4,4, by = .1))
-traceline[[i]] <- probtrace(extr.2, Theta)
-}
-
-# rename list
-names(traceline) <- paste('item',1:length(traceline))
-
-# rbind traceline
-traceline.df <- do.call(rbind, traceline)
-
-# create item names length based on length of theta provided
-item <- rep(names(traceline),each=length(Theta))
-
-# put them all together into a dataframe
-l.format <- cbind.data.frame(Theta, item, traceline.df)
 
 
-l.format$item<-as.factor(l.format$item)
-aux<-l.format %>%
-  group_by(item) %>%
-  slice(which.min(abs(P.1-0.5))) # We are only using the P.1 column (dichotomous)
+data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 
-aux<-aux[order(aux$Theta),]
-ord<-as.integer(aux$item)
-l.format$item = factor(l.format$item,levels(l.format$item)[ord])
+data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'gender')]
+datM <- data[data$gender == 1,]
+datM <- datM[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
+datF <- data[data$gender == 2,]
+datF <- datM[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
+print(datM)
 
-# plot chart
-ggplot(l.format, aes(Theta, P.1, colour = item)) + 
-  geom_line() + 
-  ggtitle('Probability Tracelines') + 
-  xlab(expression(theta)) + 
-  ylab(expression(P(theta))) + 
-  geom_hline(aes(yintercept = 0.5)) + theme_bw() + 
-  theme(text = element_text(size=16),
-        axis.text.x=element_text(colour="black"),
-        axis.text.y=element_text(colour="black"),
-        legend.title=element_blank())
+modM <- mirt(datM, model= 1, itemtype = 'gpcm')
+# mod1
+#looks at how well each item runs on that one dimensional latent (with F1)
+summary(modM)
 
-
-
-
-
-
+coef(modM, IRTpars= T)
+itemplot(modM, 1, type="score")
+# p2 = itemplot(mod1, 2, type='score')
+# p3 = itemplot(mod1, 3, type='score')
+# itemplot(mod1, 1, type="trace")
+# itemplot(mod1, 1, type = "info")
+# plot(mod1, type='score')
+# p2 = update(plot(mod1, 2))
+# plot(mod1, type = "info")
+# p1 + p2 + p3
 ```
+
+
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
