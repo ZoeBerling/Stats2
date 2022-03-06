@@ -1,0 +1,43 @@
+---
+title: "test1"
+author: "Zoe Berling"
+output: pdf_document
+---
+
+```{r setup, include=TRUE}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+
+library(mirt)
+library(pander)
+
+
+library(psych)
+library(ltm)
+
+```
+
+```{r}
+"""Model 1: Constrained Discrimination"""
+data(bfi)
+bfi.items <- bfi[,1:25]
+
+fit1 <- grm(bfi.items, constrained = TRUE)
+fit1
+
+```
+
+```{r}
+# """Blog https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.190.8027&rep=rep1&type=pdf"""
+data(acl)
+Communality <- acl[, 1:10]
+iio.results <- check.iio(Communality)
+summary(iio.results)
+monotonicity.results <- check.monotonicity(Communality)
+summary(monotonicity.results)
+plot(monotonicity.results, items = c(1, 2, 3, 4, 5, 6))
+
+```

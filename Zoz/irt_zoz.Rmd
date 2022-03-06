@@ -19,40 +19,96 @@ library(ggpubr)
 library(mirt)
 library(tidyr)
 library(pander)
+library(psych)
+library(ltm)
+library(car)
+
 ```
 
 ```{r}
-data <- read.csv("baseData.csv", header=TRUE) 
+data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 
-data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
-print(data)
 
-mod1 <- mirt(data, model= 1, itemtype = 'gpcm')
+
+dat2<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'gender')]
+
+questions = c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')
+for (c in questions) {
+dat2[[c]] <- recode(dat2[[c]],"c(1, 2)='0';c(3, 4)='1'")
+
+}
+
+g1<- dat2[dat2$gender == 1,][questions]
+g2<- dat2[dat2$gender == 2,][questions]
+  
+mod1 <- mirt(g1, model= 1, itemtype = 'gpcm')
 # mod1
 #looks at how well each item runs on that one dimensional latent (with F1)
 summary(mod1)
 
 coef(mod1, IRTpars= T)
-itemplot(mod1, 1, type="trace")
-itemplot(mod1, 1, type = "info")
-plot(mod1, type='trace')
-plot(mod1, type = "info")
+
+
+for (i in 1:length(dat))
+  {
+  print(i)
+  print(itemplot(mod1, {i}, type="score"))
+}
+
+plot(mod1, type = 'score', auto.key = TRUE)
+
+a = itemplot(mod1, 1, type="score")
+b = itemplot(mod1, 2, type="score")
 
 ```
 
 ```{r}
+
+monotonicity.results <- check.monotonicity(dat)
+summary(monotonicity.results)
+plot(monotonicity.results, items = c(1, 2, 3, 4, 5, 6), curves = "IRF", ask=FALSE)
+
+```
+
+```{r}
+
+traceline <- NULL
+for(i in 1:length(dat)){
+extr.2 <- extract.item(mod1, i)
+Theta <- matrix(seq(-4,4, by = .1))
+traceline[[i]] <- probtrace(extr.2, Theta)
+}
+
+# rename list
+names(traceline) <- paste('item',1:length(traceline))
+
+# rbind traceline
+traceline.df <- do.call(rbind, traceline)
+
+# create item names length based on length of theta provided
+item <- rep(names(traceline),each=length(Theta))
+l.format <- cbind.data.frame(Theta, item, traceline.df)
+
+```
+
+```{r}
+itemplot(mod1, 1, type="trace")
+itemplot(mod1, 1, type="score")
+itemplot(mod1, 1, type = "info")
+b = plot(mod1,type='trace')
+plot(mod1, type = "info")
+
+"""what is this?"""
 plot(mod1)
 fscores(mod1)
 itemfit(mod1)
 personfit(mod1)
 
-
-
 ```
 
 ```{r}
 # going off of aidens
-data <- read.csv("baseData.csv", header=TRUE) 
+data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A')]
 
 # dat <- expand.table(data) # zoe says we don't need this step because our data is already columns by question
@@ -84,6 +140,7 @@ l.format <- cbind.data.frame(Theta, item, traceline.df)
 
 
 l.format$item<-as.factor(l.format$item)
+
 aux<-l.format %>%
   group_by(item) %>%
   slice(which.min(abs(P.1-0.5))) # We are only using the P.1 column (dichotomous)
