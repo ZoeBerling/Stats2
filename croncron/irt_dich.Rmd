@@ -28,7 +28,7 @@ You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
 data(LSAT)
-# head(LSAT)
+head(LSAT)
 #z1 stands for 1 latent predictor
 IRTmodel = ltm(LSAT~z1, IRT.param=TRUE)
 summary(IRTmodel)
