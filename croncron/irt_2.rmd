@@ -8,20 +8,24 @@ library('knitr')
 
 
 ```{r}
-data <- read.csv("sampleData.csv", header=TRUE) 
+data <- read.csv("baseData.csv", header=TRUE) 
 
+# print(data)
+
+data<- data[c('Q1A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'Q7A', 'Q8A', 'Q9A', 'Q14A', 'Q21A')]
 print(data)
-
-
-
 # scale <-(data[,1:6])
 
 mod1 <- (mirt(data, 1, verbose = FALSE, itemtype = 'graded', SE = TRUE))
+
+mod1
 
 M2(mod1, type = "C2", calcNULL = FALSE)
 
 
 ```
+
+
 
 ```{r}
 itemfit(mod1)

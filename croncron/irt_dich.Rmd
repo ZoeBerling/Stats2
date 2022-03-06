@@ -1,0 +1,54 @@
+---
+title: "IRTpractice"
+output: html_document
+date: '2022-03-05'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# install.packages('ltm')
+# WE ARE GOING THROUGH THIS WALKTHROUGH
+#https://www.youtube.com/watch?v=VtWsyUCGfhg
+library(ltm)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+data(LSAT)
+# head(LSAT)
+#z1 stands for 1 latent predictor
+IRTmodel = ltm(LSAT~z1, IRT.param=TRUE)
+summary(IRTmodel)
+coef(IRTmodel)
+
+
+```
+
+```{r}
+
+#item 3 is the most difficult and items 1,5 are the easiest
+plot(IRTmodel, type ="ICC") #all items at once
+plot(IRTmodel, type="ICC", item = 3) #one item at a time
+plot(IRTmodel, type="IIC", item=0) #test information function
+#gives you every combination of response patterns
+#talks about this at 10 minutes in statistics of doom 30min video
+factor.scores(IRTmodel)
+person.fit(IRTmodel)
+item.fit(IRTmodel)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
