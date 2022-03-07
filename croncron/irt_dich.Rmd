@@ -19,6 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 # WE ARE GOING THROUGH THIS WALKTHROUGH
 #https://www.youtube.com/watch?v=VtWsyUCGfhg
 library(ltm)
+library(car)
 
 ```
 
@@ -61,51 +62,35 @@ head(data)
 # data[ , 0:3][data[, 0:3] < 2] <- 0
 # head(data)
 
-
+data$gender[data$gender==1]<-0
+data$gender[data$gender==2]<-1
 # converting the data to binary for dichotous purposes
-data$Q1A[data$Q1A==1]<- 0
-data$Q1A[data$Q1A==2]<- 0
-data$Q1A[data$Q1A==3]<- 1
-data$Q1A[data$Q1A==4]<- 1
-data$Q2A[data$Q2A==1]<- 0
-data$Q2A[data$Q2A==2]<- 0
-data$Q2A[data$Q2A==3]<- 1
-data$Q2A[data$Q2A==4]<- 1
-data$Q3A[data$Q3A==1]<- 0
-data$Q3A[data$Q3A==2]<- 0
-data$Q3A[data$Q3A==3]<- 1
-data$Q3A[data$Q3A==4]<- 1
-data$Q4A[data$Q4A==1]<- 0
-data$Q4A[data$Q4A==2]<- 0
-data$Q4A[data$Q4A==3]<- 1
-data$Q4A[data$Q4A==4]<- 1
-data$Q5A[data$Q5A==1]<- 0
-data$Q5A[data$Q5A==2]<- 0
-data$Q5A[data$Q5A==3]<- 1
-data$Q5A[data$Q5A==4]<- 1
-data$Q6A[data$Q6A==1]<- 0
-data$Q6A[data$Q6A==2]<- 0
-data$Q6A[data$Q6A==3]<- 1
-data$Q6A[data$Q6A==4]<- 1
+questions = c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')
+
+for (c in questions) {
+data[[c]] <- recode(data[[c]],"c(1, 2)='0';c(3, 4)='1'")
+
+}
 
 head(data)
 # 
 dat_base <-data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 head(dat_base)
-datM <- data[data$gender == 1,]
+datM <- data[data$gender == 0,]
 datM <- datM[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
-datF <- data[data$gender == 2,]
+datF <- data[data$gender == 1,]
 datF <- datF[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 
 
 
 ```
 ```{r}
+library(difR)
 IRTmodel_base = ltm(dat_base~z1, IRT.param=TRUE)
 plot(IRTmodel_base, type ="ICC") #all items at once
-
-
-
+str(data)
+# dichoDif(data, data$gender, focal.name=1, method='Raju')
+dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="1PL")
 ```
 
 ```{r}
