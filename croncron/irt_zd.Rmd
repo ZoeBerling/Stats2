@@ -11,6 +11,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 library(ltm)
 library(mokken)
 library(car)
+library(difR)
 
 
 ```
@@ -19,14 +20,10 @@ library(car)
 data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'gender')]
 head(data)
-#attempt at zoe's way
-# data[ , 0:3][ data[ , 0:3 ] == 1 ] <- 0
-# data[ , 0:3][data[, 0:3] < 2] <- 0
-# head(data)
 
 data$gender[data$gender==1]<-0
 data$gender[data$gender==2]<-1
-# converting the data to binary for dichotous purposes
+# converting the data to binary for dichotomous purposes
 questions = c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')
 
 for (c in questions) {
@@ -35,7 +32,6 @@ data[[c]] <- car::recode(data[[c]],"c(1, 2)='0';c(3, 4)='1'")
 }
 
 head(data)
-# 
 dat_base <-data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 head(dat_base)
 datM <- data[data$gender == 0,]
@@ -47,38 +43,44 @@ datF <- datF[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 
 ```{r}
 #at first glance the mean of each question seems to be good because not everyone is answering one way to these wquestions
-# summary(dat_base)
+summary(dat_base)
 
-mok<-check.iio(dat_base)
-summary(mok)
+# mok<-check.iio(dat_base)
+# summary(mok)
 ```
 
 ```{r}
 #testing for monotonicity
-#the steeper the slope the more discriminable an item is
+#z1 implies that we have one latent variable that we are predicting 
+#IRT.param=TRUE is how we set this IRT Model to 2PL (difficulty and discrimination)
+model<-ltm(dat_base~z1, IRT.param=TRUE)
 
-#testing for item invariance and local independence using Differential Item Functioning Analysis
-library(difR)
+# the steeper the slope the more 
+## discriminable an item is
+plot(model, type="ICC", xlab='ability')
 
-#SWITCHING TO 2PL CHANGES THINGS
-# dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="2PL")
-# dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="1PL")
+#testing for item invariance using Differential Item Functioning Analysis
+a<-dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="2PL")
+a
 ```
 
 
 ```{r}
-#always z1 because this is a unidimensional model
-model<-ltm(dat_base~z1, IRT.param=TRUE)
 #difficulty is a zcore of whatever the latent variable is (anxiety)
-#discriminable is the slope 
-coef(model)
+#discriminable is the slope or how good the question is at figuring a person out
+model<-ltm(dat_base~z1, IRT.param=TRUE)
+print(coef(model))
+```
 
-plot(model, type="ICC")
+```{r}
+plot(model, type="ICC", items=c(1,2,3,4,5, 6))
 abline(.5,0)
+
 plot(model, type="IIC") #test information function
 #gives you every combination of response patterns
-#talks about this at 10 minutes in statistics of doom 30min video
+
 factor.scores(model)
+#measures person ability for each pearson who responded a specific way
 person.fit(model)
 item.fit(model)
 ```
@@ -86,27 +88,15 @@ item.fit(model)
 ```{r}
 mod1pl<-rasch(dat_base)
 mod2pl<-ltm(dat_base~z1, IRT.param=TRUE)
+mod3pl<-tpm(dat_base, type="latent.trait", IRT.param=TRUE)
 anova(mod1pl, mod2pl)
+# anova(mod2pl, mod3pl)
 # anova(mod2pl, mod1pl)
 
-```
-
-
-```{r}
-
-# print(dat_base)
-cleaned<-na.omit(dat_base)
-smol<-head(cleaned,10)
-# # print(smol)
-# print(cleaned)
-# print(dat_base)
-# chisq.test(smol)
-# tp<-table(dat_base)
-# print(tp)
-# chisq.test(tp)
-
 
 ```
+
+
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
