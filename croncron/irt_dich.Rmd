@@ -35,7 +35,6 @@ IRTmodel = ltm(LSAT~z1, IRT.param=TRUE)
 summary(IRTmodel)
 coef(IRTmodel)
 
-
 ```
 
 ```{r}
@@ -85,25 +84,41 @@ datF <- datF[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 
 ```
 ```{r}
-library(difR)
+#testing for monotonicity
+
 IRTmodel_base = ltm(dat_base~z1, IRT.param=TRUE)
+summary(IRTmodel_base)
 plot(IRTmodel_base, type ="ICC") #all items at once
 str(data)
 # dichoDif(data, data$gender, focal.name=1, method='Raju')
-dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="1PL")
 ```
+
+
+
 
 ```{r}
 
-IRTmodelM = ltm(datM~z1, IRT.param=TRUE)
-IRTmodelF = ltm(datF~z1, IRT.param=TRUE)
-str(IRTmodelM)
-# print(IRTmodelM['z'])
-# p1 = plot(IRTmodelM, type ="ICC", item = 1)
-# p2 = plot(IRTmodelF, type = "ICC", item=1)
-# p1+p2
+#testing for item invariance using Differential Item Functioning Analysis
+library(difR)
+#SWITCHING TO 2PL CHANGES THINGS
+dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="2PL")
+dichoDif(data, group="gender", focal.name=1, method=c("LRT"), model="1PL")
 
-# plot(IRTmodelM['z'])
+
+```
+```{r}
+# library('lmboot')
+# 
+# JackObj <- jackknife(dat_base$Q1A~dat_base$Q2A, data = dat_base)
+# 
+# #plot the sampling distribution of the slope coefficient
+# hist(JackObj$bootEstParam[,2], main="Jackknife Sampling Distn.",
+# xlab="Slope Estimate")
+head(dat_base)
+
+dat_mat<-as.table(as.matrix(dat_base))
+chisq.test(dat_mat)
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
