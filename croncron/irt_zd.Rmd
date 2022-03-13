@@ -11,7 +11,9 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 library(ltm)
 library(mokken)
 library(car)
-library(difR)
+library(tidyverse)
+library(latticeExtra)
+
 
 
 ```
@@ -59,9 +61,6 @@ model<-ltm(dat_base~z1, IRT.param=TRUE)
 ## discriminable an item is
 plot(model, type="ICC", xlab='ability')
 
-#testing for item invariance using Differential Item Functioning Analysis
-a<-dichoDif(data, group="gender", focal.name=1, method=c("Lord"), model="2PL")
-a
 ```
 
 
@@ -86,9 +85,28 @@ item.fit(model)
 ```
 
 ```{r}
+library(glue)
+# graphing both genders ICC
+modelM<-ltm(datM~z1, IRT.param=TRUE)
+modelF<-ltm(datF~z1, IRT.param=TRUE)
+
+for (i in 1:6) {
+  g<- ggplot()
+  p1 = as.data.frame(plot(modelM,type="ICC",item = {i}))
+  p2= as.data.frame(plot(modelF,type="ICC", item = {i}))
+  
+  # p1<- as.data.frame(pm)
+  # p2 <- as.data.frame(pf)
+
+  g<-  g+ geom_line(aes(x=p1$z, y=p1$V2, color = 'Male', size = .5)) + geom_line(aes(x=p2$z, y=p2$V2, color = 'Female', size=.5)) + labs(title=glue("Item ",{i}) ,
+          x ="Probability", y = "Ability")
+print(g)
+}
+```
+
+```{r}
 mod1pl<-rasch(dat_base)
 mod2pl<-ltm(dat_base~z1, IRT.param=TRUE)
-mod3pl<-tpm(dat_base, type="latent.trait", IRT.param=TRUE)
 anova(mod1pl, mod2pl)
 # anova(mod2pl, mod3pl)
 # anova(mod2pl, mod1pl)
