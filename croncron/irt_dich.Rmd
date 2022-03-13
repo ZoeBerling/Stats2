@@ -67,7 +67,7 @@ data$gender[data$gender==2]<-1
 questions = c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')
 
 for (c in questions) {
-data[[c]] <- recode(data[[c]],"c(1, 2)='0';c(3, 4)='1'")
+data[[c]] <- car::recode(data[[c]],"c(1, 2)='0';c(3, 4)='1'")
 
 }
 
@@ -83,6 +83,18 @@ datF <- datF[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 
 
 ```
+
+
+```{r}
+mean(rowSums(dat_base))
+
+
+
+
+```
+
+
+
 ```{r}
 #testing for monotonicity
 

@@ -16,6 +16,8 @@ library(difR)
 
 ```
 
+
+
 ```{r}
 data <- read.csv("q1Throughq6andGender.csv", header=TRUE) 
 data<- data[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A', 'gender')]
@@ -45,8 +47,6 @@ datF <- datF[c('Q1A', 'Q2A', 'Q3A', 'Q4A', 'Q5A', 'Q6A')]
 #at first glance the mean of each question seems to be good because not everyone is answering one way to these wquestions
 summary(dat_base)
 
-# mok<-check.iio(dat_base)
-# summary(mok)
 ```
 
 ```{r}
@@ -73,10 +73,10 @@ print(coef(model))
 ```
 
 ```{r}
-plot(model, type="ICC", items=c(1,2,3,4,5, 6))
+plot(model, type="ICC", items=c(1,2,3,4,5, 6), xlab='Tendency Towards Depression')
 abline(.5,0)
 
-plot(model, type="IIC") #test information function
+plot(model, type="IIC", xlab='Tendency Towards Depression') #test information function
 #gives you every combination of response patterns
 
 factor.scores(model)
